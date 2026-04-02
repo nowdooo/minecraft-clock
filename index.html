@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Minecraft Clock Widget</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet"/>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: transparent;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .widget {
+      position: relative;
+      width: 400px;
+      height: 230px;
+      overflow: hidden;
+      border-radius: 4px;
+    }
+
+    .bg-gif {
+      position: absolute;
+      top: -10px; /* 윗부분 10px 잘라내기 */
+      left: 0;
+      width: 100%;
+      height: 240px;
+      object-fit: cover;
+      display: none;
+    }
+
+    .bg-gif.active {
+      display: block;
+    }
+
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .date-text {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 18px;
+      color: #FFFFFF;
+      text-align: center;
+      /* stroke 효과: text-shadow로 구현 */
+      text-shadow:
+        -2px -2px 0 #777676,
+         2px -2px 0 #777676,
+        -2px  2px 0 #777676,
+         2px  2px 0 #777676,
+        -2px  0   0 #777676,
+         2px  0   0 #777676,
+         0   -2px 0 #777676,
+         0    2px 0 #777676;
+      letter-spacing: 0%;
+      line-height: auto;
+    }
+
+    .time-text {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 52px;
+      color: #FFFFFF;
+      text-align: center;
+      /* stroke 3px 효과 */
+      text-shadow:
+        -3px -3px 0 #777676,
+         3px -3px 0 #777676,
+        -3px  3px 0 #777676,
+         3px  3px 0 #777676,
+        -3px  0   0 #777676,
+         3px  0   0 #777676,
+         0   -3px 0 #777676,
+         0    3px 0 #777676;
+      letter-spacing: 0%;
+      line-height: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="widget">
+    <img class="bg-gif" id="morning-gif" src="morning.gif" alt="morning"/>
+    <img class="bg-gif" id="night-gif" src="night.gif" alt="night"/>
+    <div class="overlay">
+      <div class="date-text" id="date-display"></div>
+      <div class="time-text" id="time-display"></div>
+    </div>
+  </div>
+
+  <script>
+    function getSeoulTime() {
+      const now = new Date();
+      // 서울 시간 (UTC+9)
+      const seoulOffset = 9 * 60;
+      const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+      return new Date(utc + seoulOffset * 60000);
+    }
+
+    function pad(n) {
+      return String(n).padStart(2, '0');
+    }
+
+    function updateClock() {
+      const seoul = getSeoulTime();
+      const year = seoul.getFullYear();
+      const month = pad(seoul.getMonth() + 1);
+      const day = pad(seoul.getDate());
+      const hour = seoul.getHours();
+      const min = pad(seoul.getMinutes());
+
+      // 날짜 표시
+      document.getElementById('date-display').textContent =
+        `${year}.${month}.${day}`;
+
+      // 시간 표시
+      document.getElementById('time-display').textContent =
+        `${pad(hour)}:${min}`;
+
+      // GIF 전환: 07:00~18:59 → 오전, 19:00~06:59 → 저녁
+      const morningGif = document.getElementById('morning-gif');
+      const nightGif = document.getElementById('night-gif');
+
+      if (hour >= 7 && hour <= 18) {
+        morningGif.classList.add('active');
+        nightGif.classList.remove('active');
+      } else {
+        nightGif.classList.add('active');
+        morningGif.classList.remove('active');
+      }
+    }
+
+    updateClock();
+    setInterval(updateClock, 1000);
+  </script>
+</body>
+</html>
